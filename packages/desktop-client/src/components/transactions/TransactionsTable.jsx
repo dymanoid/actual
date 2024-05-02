@@ -2185,8 +2185,8 @@ export const TransactionTable = forwardRef((props, ref) => {
 
 TransactionTable.displayName = 'TransactionTable';
 
-function notesTagFormatter(value, onNotesTagClick) {
-  const words = value.split(' ');
+function notesTagFormatter(notes, onNotesTagClick) {
+  const words = notes.split(' ');
   return (
     <>
       {words.map((word, i, arr) => {
@@ -2212,7 +2212,7 @@ function notesTagFormatter(value, onNotesTagClick) {
                 }}
                 onClick={e => {
                   e.stopPropagation();
-                  onNotesTagClick?.(word);
+                  onNotesTagClick?.(words.length);
                 }}
               >
                 {word}
