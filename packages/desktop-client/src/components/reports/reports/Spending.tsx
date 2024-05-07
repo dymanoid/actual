@@ -34,7 +34,7 @@ export function Spending() {
     onApply: onApplyFilter,
     onDelete: onDeleteFilter,
     onUpdate: onUpdateFilter,
-    onCondOpChange,
+    onConditionsOpChange,
   } = useFilters<RuleConditionEntity>();
 
   const [dataCheck, setDataCheck] = useState(false);
@@ -137,7 +137,7 @@ export function Spending() {
                 onUpdate={onUpdateFilter}
                 onDelete={onDeleteFilter}
                 conditionsOp={conditionsOp}
-                onCondOpChange={onCondOpChange}
+                onConditionsOpChange={onConditionsOpChange}
               />
             </View>
           )}
