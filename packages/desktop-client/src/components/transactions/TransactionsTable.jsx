@@ -2192,8 +2192,9 @@ function notesTagFormatter(notes, onNotesTagClick) {
       {words.map((word, i, arr) => {
         const separator = arr.length - 1 === i ? '' : ' ';
         if (word.startsWith('#') && word.length > 1) {
+          const tag = word;
           return (
-            <>
+            <span key={i}>
               <Button
                 type="bare"
                 key={i}
@@ -2212,13 +2213,13 @@ function notesTagFormatter(notes, onNotesTagClick) {
                 }}
                 onClick={e => {
                   e.stopPropagation();
-                  onNotesTagClick?.(words.length);
+                  onNotesTagClick?.(tag);
                 }}
               >
-                {word}
+                {tag}
               </Button>
               {separator}
-            </>
+            </span>
           );
         }
         return `${word}${separator}`;
