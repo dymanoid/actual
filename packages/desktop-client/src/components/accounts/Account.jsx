@@ -1073,7 +1073,6 @@ class AccountInternal extends PureComponent {
     const parentTransaction = {
       is_parent: true,
       cleared: transactions.every(t => !!t.cleared),
-      reconciled: transactions.every(t => !!t.reconciled),
       date: firstTransaction.date,
       account: firstTransaction.account,
       amount: transactions
@@ -1119,7 +1118,6 @@ class AccountInternal extends PureComponent {
       return {
         ...trans,
         cleared: parentTransaction.cleared,
-        reconciled: parentTransaction.reconciled,
         is_child: false,
         parent_id: null,
       };
