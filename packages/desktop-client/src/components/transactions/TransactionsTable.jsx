@@ -10,6 +10,7 @@ import React, {
   useLayoutEffect,
   useEffect,
 } from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   format as formatDate,
@@ -17,6 +18,7 @@ import {
   isValid as isDateValid,
 } from 'date-fns';
 
+import { pushModal } from 'loot-core/client/actions';
 import { useCachedSchedules } from 'loot-core/src/client/data-hooks/schedules';
 import {
   getAccountsById,
@@ -47,7 +49,7 @@ import { useMergedRefs } from '../../hooks/useMergedRefs';
 import { usePrevious } from '../../hooks/usePrevious';
 import { useSelectedDispatch, useSelectedItems } from '../../hooks/useSelected';
 import { useSplitsExpanded } from '../../hooks/useSplitsExpanded';
-import { SvgLeftArrow2, SvgRightArrow2 } from '../../icons/v0';
+import { SvgLeftArrow2, SvgRightArrow2, SvgSplit } from '../../icons/v0';
 import { SvgArrowDown, SvgArrowUp, SvgCheveronDown } from '../../icons/v1';
 import {
   SvgArrowsSynchronize,
@@ -445,7 +447,6 @@ function PayeeCell({
   payeeId,
   accountId,
   focused,
-  inherited,
   payees,
   accounts,
   valueStyle,
@@ -466,16 +467,75 @@ function PayeeCell({
   accounts = accounts.filter(account => account.id !== accountId);
   payees = payees.filter(payee => payee.transfer_acct !== accountId);
 
-  return (
+  const dispatch = useDispatch();
+
+  return transaction.is_parent ? (
+    <Cell
+      name="payee"
+      width="flex"
+      focused={focused}
+      style={{ padding: 0 }}
+      plain
+    >
+      <CellButton
+        bare
+        style={{
+          alignSelf: 'flex-start',
+          borderRadius: 4,
+          border: '1px solid transparent', // so it doesn't shift on hover
+          ':hover': {
+            border: '1px solid ' + theme.buttonNormalBorder,
+          },
+        }}
+        disabled={isPreview}
+        onSelect={() =>
+          dispatch(
+            pushModal('payee-autocomplete', {
+              onSelect: payeeId => {
+                onUpdate('payee', payeeId);
+              },
+            }),
+          )
+        }
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            alignSelf: 'stretch',
+            borderRadius: 4,
+            flex: 1,
+            padding: 4,
+            color: theme.pageTextSubdued,
+          }}
+        >
+          <SvgSplit
+            style={{
+              color: 'inherit',
+              width: 14,
+              height: 14,
+              marginRight: 2,
+            }}
+          />
+          <Text
+            style={{
+              fontStyle: 'italic',
+              fontWeight: 300,
+              userSelect: 'none',
+            }}
+          >
+            Split
+          </Text>
+        </View>
+      </CellButton>
+    </Cell>
+  ) : (
     <CustomCell
       width="flex"
       name="payee"
       textAlign="flex"
       value={payeeId}
-      valueStyle={{
-        ...valueStyle,
-        ...(inherited && { color: theme.tableTextInactive }),
-      }}
+      valueStyle={valueStyle}
       exposed={focused}
       onExpose={name => !isPreview && onEdit(id, name)}
       onUpdate={async value => {
@@ -624,7 +684,6 @@ const Transaction = memo(function Transaction(props) {
     added,
     matched,
     expanded,
-    inheritedFields,
     focusedField,
     categoryGroups,
     payees,
@@ -980,7 +1039,6 @@ const Transaction = memo(function Transaction(props) {
           payeeId={payeeId}
           accountId={accountId}
           focused={focusedField === 'payee'}
-          inherited={inheritedFields && inheritedFields.has('payee')}
           payees={payees}
           accounts={accounts}
           valueStyle={valueStyle}
@@ -1080,6 +1138,7 @@ const Transaction = memo(function Transaction(props) {
                 borderRadius: 4,
                 flex: 1,
                 padding: 4,
+                color: theme.pageTextSubdued,
               }}
             >
               {isParent && (
@@ -1093,7 +1152,13 @@ const Transaction = memo(function Transaction(props) {
                   }}
                 />
               )}
-              <Text style={{ fontStyle: 'italic', userSelect: 'none' }}>
+              <Text
+                style={{
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  userSelect: 'none',
+                }}
+              >
                 Split
               </Text>
             </View>
@@ -1612,9 +1677,6 @@ function TransactionTableInner({
           accounts={accounts}
           categoryGroups={categoryGroups}
           payees={payees}
-          inheritedFields={
-            parent?.payee === trans.payee ? new Set(['payee']) : new Set()
-          }
           dateFormat={dateFormat}
           hideFraction={hideFraction}
           onEdit={tableNavigator.onEdit}
