@@ -669,39 +669,38 @@ function PayeeIcons({
   );
 }
 
-const Transaction = memo(function Transaction(props) {
-  const {
-    transaction: originalTransaction,
-    subtransactions,
-    editing,
-    showAccount,
-    showBalance,
-    showCleared,
-    showZeroInDeposit,
-    style,
-    selected,
-    highlighted,
-    added,
-    matched,
-    expanded,
-    focusedField,
-    categoryGroups,
-    payees,
-    accounts,
-    balance,
-    dateFormat = 'MM/dd/yyyy',
-    hideFraction,
-    onSave,
-    onEdit,
-    onDelete,
-    onSplit,
-    onManagePayees,
-    onCreatePayee,
-    onToggleSplit,
-    onNavigateToTransferAccount,
-    onNavigateToSchedule,
-  } = props;
-
+const Transaction = memo(function Transaction({
+  transaction: originalTransaction,
+  subtransactions,
+  editing,
+  showAccount,
+  showBalance,
+  showCleared,
+  showZeroInDeposit,
+  style,
+  selected,
+  highlighted,
+  added,
+  matched,
+  expanded,
+  focusedField,
+  categoryGroups,
+  payees,
+  accounts,
+  balance,
+  dateFormat = 'MM/dd/yyyy',
+  hideFraction,
+  onSave,
+  onEdit,
+  onDelete,
+  onSplit,
+  onManagePayees,
+  onCreatePayee,
+  onToggleSplit,
+  onNavigateToTransferAccount,
+  onNavigateToSchedule,
+}) {
+  const dispatch = useDispatch();
   const dispatchSelected = useSelectedDispatch();
 
   const [prevShowZero, setPrevShowZero] = useState(showZeroInDeposit);
@@ -744,13 +743,15 @@ const Transaction = memo(function Transaction(props) {
       ) {
         if (showReconciliationWarning === false) {
           setShowReconciliationWarning(true);
-          props.pushModal('confirm-transaction-edit', {
-            onConfirm: () => {
-              setShowReconciliationWarning(false);
-              onUpdateAfterConfirm(name, value);
-            },
-            confirmReason: 'editReconciled',
-          });
+          dispatch(
+            pushModal('confirm-transaction-edit', {
+              onConfirm: () => {
+                setShowReconciliationWarning(false);
+                onUpdateAfterConfirm(name, value);
+              },
+              confirmReason: 'editReconciled',
+            }),
+          );
         }
       } else {
         onUpdateAfterConfirm(name, value);
@@ -759,12 +760,14 @@ const Transaction = memo(function Transaction(props) {
 
     // Allow un-reconciling (unlocking) transactions
     if (name === 'cleared' && transaction.reconciled) {
-      props.pushModal('confirm-transaction-edit', {
-        onConfirm: () => {
-          onUpdateAfterConfirm('reconciled', false);
-        },
-        confirmReason: 'unlockReconciled',
-      });
+      dispatch(
+        pushModal('confirm-transaction-edit', {
+          onConfirm: () => {
+            onUpdateAfterConfirm('reconciled', false);
+          },
+          confirmReason: 'unlockReconciled',
+        }),
+      );
     }
   }
 
@@ -1688,7 +1691,6 @@ function TransactionTableInner({
           onToggleSplit={props.onToggleSplit}
           onNavigateToTransferAccount={onNavigateToTransferAccount}
           onNavigateToSchedule={onNavigateToSchedule}
-          pushModal={props.pushModal}
         />
       </>
     );

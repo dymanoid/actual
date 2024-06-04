@@ -1,5 +1,7 @@
 import React, { useRef, useCallback, useLayoutEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
+import { pushModal } from 'loot-core/client/actions';
 import { send } from 'loot-core/src/platform/client/fetch';
 import {
   splitTransaction,
@@ -76,7 +78,6 @@ export function TransactionList({
   dateFormat,
   hideFraction,
   addNotification,
-  pushModal,
   renderEmpty,
   onSort,
   sortField,
@@ -86,6 +87,7 @@ export function TransactionList({
   onCloseAddTransaction,
   onCreatePayee,
 }) {
+  const dispatch = useDispatch();
   const transactionsLatest = useRef();
   const navigate = useNavigate();
 
@@ -153,7 +155,7 @@ export function TransactionList({
   }, []);
 
   const onManagePayees = useCallback(id => {
-    navigate('/payees', { selectedPayee: id });
+    navigate('/payees', { state: { selectedPayee: id } });
   });
 
   const onNavigateToTransferAccount = useCallback(accountId => {
@@ -161,13 +163,12 @@ export function TransactionList({
   });
 
   const onNavigateToSchedule = useCallback(scheduleId => {
-    pushModal('schedule-edit', { id: scheduleId });
+    dispatch(pushModal('schedule-edit', { id: scheduleId }));
   });
 
   return (
     <TransactionTable
       ref={tableRef}
-      pushModal={pushModal}
       transactions={allTransactions}
       loadMoreTransactions={loadMoreTransactions}
       accounts={accounts}
